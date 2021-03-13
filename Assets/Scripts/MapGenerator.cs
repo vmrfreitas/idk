@@ -65,19 +65,29 @@ public class MapGenerator : MonoBehaviour {
 			SmoothMap();
 			halfMap = (int[,])halfMap2.Clone();
 		}
-		//doubleSize();
-		//findWallsAndAreas(); // pegar coordenada de todos os pontos em uma area, pegar quais são as paredes
+		doubleSize();
+		findWallsAndAreas(); // pegar coordenada de todos os pontos em uma area, pegar quais são as paredes
 		//connectAllAreas(); // fazer distancia de todas as paredes entre todas as paredes até achar o mais próximo pra conectar
 	}
 
 	void doubleSize() {
-		for (int x = 1; x < width-1; x ++) {
-			for (int y = 1; y < height-1; y ++) {
-				if (map[x-1,y]==0 && map[x,y]==1 && map[x+1,y] == 0){
-					map[x,y] = 0;
-				} else if (map[x-1,y]==0 && map[x,y]==1 && map[x+1,y] == 0){
-					map[x,y] = 0;
-				}
+		int maxWidth = width;
+		int maxHeight = height;
+		if(width%2 != 0){
+			maxWidth--;
+			for(int y = 0; y < height; y++){
+				map[maxWidth, y] = 1;
+			}
+		}
+		if(height%2 !=0 ){
+			maxHeight--;
+			for(int x = 0; x < width; x++){
+				map[x, maxHeight] = 1;
+			}
+		}
+		for (int x = 0; x < maxWidth; x ++) {
+			for (int y = 0; y < maxHeight; y ++) {
+				map[x,y] = halfMap[(int)(x/2),(int)(y/2)];
 			}
 		}
 	}
@@ -170,7 +180,7 @@ public class MapGenerator : MonoBehaviour {
 
 		return wallCount;
 	}
-/*
+
 	void OnDrawGizmos() {
 		if (map != null) {
 			for (int x = 0; x < width; x ++) {
@@ -182,8 +192,8 @@ public class MapGenerator : MonoBehaviour {
 			}
 		}
 	}
-*/
-	void OnDrawGizmos() {
+
+/*	void OnDrawGizmos() {
 		if (halfMap != null) {
 			for (int x = 0; x < halfWidth; x ++) {
 				for (int y = 0; y < halfHeight; y ++) {
@@ -194,27 +204,27 @@ public class MapGenerator : MonoBehaviour {
 			}
 		}
 	}
-
+*/
 	Color getGizmoColor(int x, int y) {
-		if (halfMap[x,y] == 1) {
+		if (map[x,y] == 1) {
 			return Color.black;
 		}
-		if (halfMap[x,y] == 0) {
+		if (map[x,y] == 0) {
 			return Color.white;
 		}
-		if (halfMap[x,y] == 10){
+		if (map[x,y] == 10){
 			return Color.red;
 		}
-		if (halfMap[x,y] == 11){
+		if (map[x,y] == 11){
 			return Color.blue;
 		}
-		if (halfMap[x,y] == 12){
+		if (map[x,y] == 12){
 			return Color.green;
 		}
-		if (halfMap[x,y] == 13){
+		if (map[x,y] == 13){
 			return Color.cyan;
 		}
-		if (halfMap[x,y] == 14){
+		if (map[x,y] == 14){
 			return Color.yellow;
 		}
 		return Color.magenta;
