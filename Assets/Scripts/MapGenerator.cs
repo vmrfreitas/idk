@@ -10,8 +10,6 @@ public class MapGenerator : MonoBehaviour {
 	private int areaCounter = 10;
 	public int width;
 	public int height;
-	private int halfWidth;
-	private int halfHeight;
 	private	int x=0, y=0, z=0;
 	public int iteractions;
 	public string seed;
@@ -24,8 +22,7 @@ public class MapGenerator : MonoBehaviour {
 	public int randomFillPercent;
 
 	int[,] map;
-	int[,] halfMap;
-	int[,] halfMap2;
+	int[,] map2;
 	void Start() {
 		GenerateMap();
 	}
@@ -54,42 +51,14 @@ public class MapGenerator : MonoBehaviour {
 
 	void GenerateMap() {
 		map = new int[width,height];
-		halfHeight = (int)(height/2);
-		halfWidth = (int)(width/2);
-		Debug.Log(halfHeight);
-		Debug.Log(halfWidth);
-		halfMap = new int[halfWidth,halfHeight];
-		halfMap2 = new int[halfWidth,halfHeight];
+		map2 = new int[width,height];
 		RandomFillMap();
 		for (int i = 0; i < iteractions; i ++) {
 			SmoothMap();
-			halfMap = (int[,])halfMap2.Clone();
+			map = (int[,])map2.Clone();
 		}
-		doubleSize();
 		findWallsAndAreas(); // pegar coordenada de todos os pontos em uma area, pegar quais são as paredes
 		//connectAllAreas(); // fazer distancia de todas as paredes entre todas as paredes até achar o mais próximo pra conectar
-	}
-
-	void doubleSize() {
-		int maxWidth = width;
-		int maxHeight = height;
-		if(width%2 != 0){
-			maxWidth--;
-			for(int y = 0; y < height; y++){
-				map[maxWidth, y] = 1;
-			}
-		}
-		if(height%2 !=0 ){
-			maxHeight--;
-			for(int x = 0; x < width; x++){
-				map[x, maxHeight] = 1;
-			}
-		}
-		for (int x = 0; x < maxWidth; x ++) {
-			for (int y = 0; y < maxHeight; y ++) {
-				map[x,y] = halfMap[(int)(x/2),(int)(y/2)];
-			}
-		}
 	}
 
 	void connectAllAreas() {
@@ -136,28 +105,28 @@ public class MapGenerator : MonoBehaviour {
 
 		System.Random pseudoRandom = new System.Random(seed.GetHashCode());
 
-		for (int x = 0; x < halfWidth; x ++) {
-			for (int y = 0; y < halfHeight; y ++) {
-				if (x == 0 || x == halfWidth-1 || y == 0 || y == halfHeight -1) {
-					halfMap[x,y] = 1;
+		for (int x = 0; x < width; x ++) {
+			for (int y = 0; y < height; y ++) {
+				if (x == 0 || x == width-1 || y == 0 || y == height -1) {
+					map[x,y] = 1;
 				}
 				else {
-					halfMap[x,y] = (pseudoRandom.Next(0,100) < randomFillPercent)? 1: 0;
+					map[x,y] = (pseudoRandom.Next(0,100) < randomFillPercent)? 1: 0;
 				}
-				halfMap2[x,y] = halfMap[x,y];
+				map2[x,y] = map[x,y];
 			}
 		}
 	}
 
 	void SmoothMap() {
-		for (int x = 0; x < halfWidth; x ++) {
-			for (int y = 0; y < halfHeight; y ++) {
+		for (int x = 0; x < width; x ++) {
+			for (int y = 0; y < height; y ++) {
 				int neighbourWallTiles = GetSurroundingWallCount(x,y);
 
 				if (neighbourWallTiles > 4)
-					halfMap2[x,y] = 1;
+					map2[x,y] = 1;
 				else if (neighbourWallTiles < 4)
-					halfMap2[x,y] = 0;
+					map2[x,y] = 0;
 
 			}
 		}
@@ -167,9 +136,9 @@ public class MapGenerator : MonoBehaviour {
 		int wallCount = 0;
 		for (int neighbourX = gridX - 1; neighbourX <= gridX + 1; neighbourX ++) {
 			for (int neighbourY = gridY - 1; neighbourY <= gridY + 1; neighbourY ++) {
-				if (neighbourX >= 0 && neighbourX < halfWidth && neighbourY >= 0 && neighbourY < halfHeight) {
+				if (neighbourX >= 0 && neighbourX < width && neighbourY >= 0 && neighbourY < height) {
 					if (neighbourX != gridX || neighbourY != gridY) {
-						wallCount += halfMap[neighbourX,neighbourY];
+						wallCount += map[neighbourX,neighbourY];
 					}
 				}
 				else {
@@ -193,18 +162,6 @@ public class MapGenerator : MonoBehaviour {
 		}
 	}
 
-/*	void OnDrawGizmos() {
-		if (halfMap != null) {
-			for (int x = 0; x < halfWidth; x ++) {
-				for (int y = 0; y < halfHeight; y ++) {
-					Gizmos.color = getGizmoColor(x,y);
-					Vector3 pos = new Vector3(-halfWidth/2 + x + centerX + .5f,-halfHeight/2 + y + centerY +.5f, 0);
-					Gizmos.DrawCube(pos,Vector3.one);
-				}
-			}
-		}
-	}
-*/
 	Color getGizmoColor(int x, int y) {
 		if (map[x,y] == 1) {
 			return Color.black;
