@@ -220,6 +220,20 @@ public class MapGenerator : MonoBehaviour {
 		return wallCount;
 	}
 
+	void DrawLine(int x0, int y0, int x1, int y1)
+    {
+        int dx = Math.Abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+        int dy = Math.Abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+        int err = (dx > dy ? dx : -dy) / 2, e2;
+        for(;;) {
+            map[x0,y0]=1;
+            if (x0 == x1 && y0 == y1) break;
+            e2 = err;
+            if (e2 > -dx) { err -= dy; x0 += sx; }
+            if (e2 < dy) { err += dx; y0 += sy; }
+        }
+    }
+
 	void OnDrawGizmos() {
 		if (map != null) {
 			for (int x = 0; x < width; x ++) {
