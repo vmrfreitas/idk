@@ -13389,6 +13389,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   width: 35
   height: 30
+  startX1: 11
+  startY1: 7
+  startX2: 11
+  startY2: 8
   iteractions: 20
   seed: 0
   useRandomSeed: 1

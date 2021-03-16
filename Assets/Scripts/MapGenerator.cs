@@ -12,6 +12,11 @@ public class MapGenerator : MonoBehaviour {
 	public int width;
 	public int height;
 	private	int x=0, y=0, z=0;
+	public int startX1;
+	public int startY1;
+	public int startX2;
+	public int startY2;
+
 	public int iteractions;
 	public float seed;
 	public bool useRandomSeed;
@@ -62,6 +67,12 @@ public class MapGenerator : MonoBehaviour {
 				map = (int[,])map2.Clone();
 			}
 			roomList = findWallsAndAreas(); // pegar coordenada de todos os pontos em uma area, pegar quais são as paredes
+			List<Coord> startRoomTiles = new List<Coord> ();
+			map[startX1,startY1] = 0;
+			map[startX2,startY2] = 0;
+			startRoomTiles.Add(new Coord(startX1, startY1));
+			startRoomTiles.Add(new Coord(startX2, startY2));
+			roomList.Add(new Room(startRoomTiles, map, 0));
 			foreach(Room room in roomList){
 				if(!room.isPossible(map, height, width)){
 					isPossible = false;
@@ -120,6 +131,7 @@ public class MapGenerator : MonoBehaviour {
 
 	void CreatePassage(Room roomA, Room roomB, Coord tileA, Coord tileB) {
 		Room.ConnectRooms (roomA, roomB);
+		DrawLine(tileA.tileX, tileA.tileY, tileB.tileX, tileB.tileY);
 		worldCoordTileA.Add(CoordToWorldPoint (tileA));
 		worldCoordTileB.Add(CoordToWorldPoint (tileB));
 	}
@@ -226,7 +238,7 @@ public class MapGenerator : MonoBehaviour {
         int dy = Math.Abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
         int err = (dx > dy ? dx : -dy) / 2, e2;
         for(;;) {
-            map[x0,y0]=1;
+            map[x0,y0]=0;
             if (x0 == x1 && y0 == y1) break;
             e2 = err;
             if (e2 > -dx) { err -= dy; x0 += sx; }
@@ -307,8 +319,10 @@ public class MapGenerator : MonoBehaviour {
 			foreach (Coord tile in tiles) {
 				for (int x = tile.tileX-1; x <= tile.tileX+1; x++) {
 					for (int y = tile.tileY-1; y <= tile.tileY+1; y++) {
-						if ((x == tile.tileX || y == tile.tileY) && map[x,y] == 1) {
-							edgeTiles.Add(new Coord (x, y));
+						if (x>-1 && y>-1){
+							if ((x == tile.tileX || y == tile.tileY) && map[x,y] == 1) {
+								edgeTiles.Add(new Coord (x, y));
+							}
 						}
 					}
 				}
