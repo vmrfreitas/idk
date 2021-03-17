@@ -13397,8 +13397,21 @@ MonoBehaviour:
   seed: 0
   useRandomSeed: 1
   ground: {fileID: 11400000, guid: 02817b83d624c6c4c8d2c70976ab833e, type: 2}
-  wall: {fileID: 11400000, guid: ca6f02ef0fd2bea40b597936c97fe8ca, type: 2}
-  tileMap: {fileID: 838980804}
+  wall1: {fileID: 11400000, guid: 9a0e76472c792b34993e8075a189e725, type: 2}
+  wall2: {fileID: 11400000, guid: cf1cf440fe1e88746b27c23c3e12c6a1, type: 2}
+  wall3: {fileID: 11400000, guid: 11fa78a1c1fe52749a7eed979638c4f6, type: 2}
+  wall4: {fileID: 11400000, guid: 2e7dd0b42af776a4fa8df67a9e492a77, type: 2}
+  wall5: {fileID: 11400000, guid: 207a1cab2d3d4ab40a561caaf08c4303, type: 2}
+  wall6: {fileID: 11400000, guid: af3ceda754247e043b3ea4ef415818a5, type: 2}
+  wall7: {fileID: 11400000, guid: 69a2f7e72208b6846a5d70deaa178243, type: 2}
+  wall8: {fileID: 11400000, guid: 8ae5324975056a94181869e1bf712c7f, type: 2}
+  wall9: {fileID: 11400000, guid: bd610bc93afa4f943a55cf423b13a348, type: 2}
+  wall10: {fileID: 11400000, guid: 751fe93a0d7c65040a327bd6e570dbb6, type: 2}
+  wall11: {fileID: 11400000, guid: b9f6285746189a440920c1afa6f242b8, type: 2}
+  wall12: {fileID: 11400000, guid: 1b7c50c5e1408f646b65dc7d965ac0a5, type: 2}
+  wall13: {fileID: 11400000, guid: c0914ddeb4b62c1449531ce82bc91f69, type: 2}
+  tileMapGround: {fileID: 838980804}
+  tileMapWall: {fileID: 845262932}
   worldCoordTileA: []
   worldCoordTileB: []
   randomFillPercent: 53
