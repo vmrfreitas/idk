@@ -579,6 +579,9 @@ public class MapGenerator : MonoBehaviour {
 		if (map[x,y] == 0) {
 			return Color.white;
 		}
+		if(map[x,y]==1) {
+			return Color.black;
+		}
 		if (map[x,y] == 14){
 			return Color.red;
 		}
@@ -597,7 +600,7 @@ public class MapGenerator : MonoBehaviour {
 		if (map[x,y] > 19){
 			return Color.gray;
 		}
-		return Color.black;
+		return Color.magenta;
 	}
 
 	struct Coord {
