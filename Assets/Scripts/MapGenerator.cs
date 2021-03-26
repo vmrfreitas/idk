@@ -59,7 +59,7 @@ public class MapGenerator : MonoBehaviour {
 			DrawWall();
 		}
 	}
-	void DrawWall() {//todo
+	void DrawWall() {
 		for (int x = 0; x < width; x ++) {
 			for (int y = 0; y < height; y ++) {
 				switch (map2[x,y]){
@@ -150,183 +150,298 @@ public class MapGenerator : MonoBehaviour {
 		ClearInconsistencies(roomList); // CLEAR THE INCONSISTENCIES
 		ClearInconsistencies(passageList); 
 		ClearRoomNumbers(roomList); // ERASE THE COLORS
-		map2 = (int[,])map.Clone();
-		SetWallNumbers(roomList);
-		SetWallNumbers(passageList);
-		SetCornerNumbers(roomList);
+		map2 = new int[width,height];
+		//map2 = (int[,])map.Clone();
+		PlaceTiles();
+		//SetWallNumbers(roomList);
+		//SetWallNumbers(passageList);
+		//SetCornerNumbers(roomList);
 	}
-	void SetCornerNumbers(List<Room> roomList){
-		foreach (Room room in roomList){
-			foreach (Coord tile in room.getCornerTiles()){
-				if(tile.tileX-1 < 0){
-					if(map2[tile.tileX+1,tile.tileY]==8){
-						map2[tile.tileX,tile.tileY]=10;
-						continue;
-					} else {
-						map2[tile.tileX,tile.tileY]=12;
-						continue;
-					}
-				}
-				if(tile.tileX+1 == width){ // direita é "parede"
-					if(map2[tile.tileX-1,tile.tileY]==8){ //8 na esquerda
-						map2[tile.tileX,tile.tileY]=11;
-						continue;
-					} else { //n tem 8 na esquerda
-						map2[tile.tileX,tile.tileY]=13;
-						continue;
-					}
-				}
-				if (map2[tile.tileX+1,tile.tileY]==8){ //8 na direita
-					map2[tile.tileX,tile.tileY]=10;
+
+	void PlaceTiles() {
+		for (int x = 0; x < width; x ++) {
+			for (int y = 0; y < height; y ++) {
+				if (Rule0(x,y)){
 					continue;
-				} else {
-					if(map2[tile.tileX-1,tile.tileY]==8){ //8 na esquerda
-						map2[tile.tileX,tile.tileY]=11;
-						continue;
-					}
 				}
-				if (map2[tile.tileX+1,tile.tileY]==3){ //3 na direita
-					map2[tile.tileX,tile.tileY]=12;
+				if (Rule1(x,y)){
 					continue;
-				} else {
-					if(map2[tile.tileX-1,tile.tileY]==3){ //3 na esquerda
-						map2[tile.tileX,tile.tileY]=13;
-						continue;
-					}
+				}
+				if (Rule2(x,y)){
+					continue;
+				}
+				if (Rule3(x,y)){
+					continue;
+				}
+				if (Rule4(x,y)){
+					continue;
+				}
+				if (Rule5(x,y)){
+					continue;
+				}
+				if (Rule6(x,y)){
+					continue;
+				}
+				if (Rule7(x,y)){
+					continue;
+				}
+				if (Rule8(x,y)){
+					continue;
+				}
+				if (Rule9(x,y)){
+					continue;
+				}
+				if (Rule10(x,y)){
+					continue;
+				}
+				if (Rule11(x,y)){
+					continue;
+				}
+				if (Rule12(x,y)){
+					continue;
+				}
+				if (Rule13(x,y)){
+					continue;
 				}
 			}
 		}
 	}
 
-	void SetWallNumbers(List<Room> roomList){
-		foreach (Room room in roomList){
-			foreach (Coord tile in room.getEdgeTiles()){
-				if(tile.tileX-1<0){ //caso seja do quarto inicial
-					if(tile.tileY+1 == height){//embaixo é "parede"
-						if(map[tile.tileX,tile.tileY-1]==1){ //emcima é parede
-							map2[tile.tileX,tile.tileY]=6;
-							continue;
-						} else { //em cima não é parede
-							if(tile.tileX+1 == width){//direita é "parede"
-								map2[tile.tileX,tile.tileY]=3;
-								continue;
-							}
-							if(map[tile.tileX+1,tile.tileY]==1){//direita é parede
-								map2[tile.tileX,tile.tileY]=3;
-								continue;
-							} else { 
-								map2[tile.tileX,tile.tileY]=4;
-								continue;
-							}
-						}
-					}
-					if(map[tile.tileX,tile.tileY+1] == 1){ //embaixo é parede
-						if(map[tile.tileX,tile.tileY-1]==1){ //emcima é parede
-							map2[tile.tileX,tile.tileY]=6;
-							continue;
-						} else { //em cima não é parede
-							if(tile.tileX+1 == width){//direita é "parede"
-								map2[tile.tileX,tile.tileY]=3;
-								continue;
-							}
-							if(map[tile.tileX+1,tile.tileY]==1){//direita é parede
-								map2[tile.tileX,tile.tileY]=3;
-								continue;
-							} else { 
-								map2[tile.tileX,tile.tileY]=4;
-								continue;
-							}
-						}
-					} else{//embaixo não é parede 
-						if(tile.tileX+1 == width){ //direita é "parede"
-							map2[tile.tileX,tile.tileY]=8;
-							continue;
-						}
-						if(map[tile.tileX+1,tile.tileY]==1){ //direita é parede
-							map2[tile.tileX,tile.tileY]=8;
-							continue;
-						} else { //direita não é parede
-							map2[tile.tileX,tile.tileY]=9;
-							continue;
-						}
-					}
-				}
-				if (map[tile.tileX-1,tile.tileY]==1){ //esquerda é parede
-					if(tile.tileX+1 == width){ //direita é "parede"
-						if(tile.tileY+1 == height){ //prabaixo é "parede"
-							map2[tile.tileX,tile.tileY]=3;
-							continue;
-						}
-						if(map[tile.tileX,tile.tileY+1]==1){ //prabaixo é parede
-							map2[tile.tileX,tile.tileY]=3;
-							continue;
-						} else { //prabaixo não é parede
-							map2[tile.tileX,tile.tileY]=8;
-							continue;
-						}
-					}
-					if (map[tile.tileX+1,tile.tileY]==1){ //direita é parede
-						if(tile.tileY+1 == height){ //prabaixo é "parede"
-							map2[tile.tileX,tile.tileY]=3;
-							continue;
-						}
-						if(map[tile.tileX,tile.tileY+1]==1){ //prabaixo é parede
-							map2[tile.tileX,tile.tileY]=3;
-							continue;
-						} else { //prabaixo não é parede
-							map2[tile.tileX,tile.tileY]=8;
-							continue;
-						}
-					} else { //direita não é parede
-						if(tile.tileY+1 == height){ //prabaixo é "parede"
-							if (map[tile.tileX,tile.tileY-1]==1){ //pracima é parede
-								map2[tile.tileX,tile.tileY]=6;
-								continue;
-							} else { //pracima não é parede
-								map2[tile.tileX,tile.tileY]=4;
-								continue;
+	bool isWall(int x, int y){
+		if(x<0 || x>= width){
+			return true;
+		}
+		if(y<0 || y>= height){
+			return true;
+		}
+		if(map[x,y]==1){
+			return true;
+		}
+		return false;
+	}
+
+	bool Rule0(int x, int y){
+		if(map[x,y]==0){
+			map2[x,y]=0;
+			return true;
+		}
+		return false;
+	}
+	
+	bool Rule1(int x, int y){
+		if(isWall(x-1,y+1)){
+			if(isWall(x,y+1)){
+				if(isWall(x+1,y+1)){
+					if(isWall(x-1,y)){
+						if(isWall(x,y)){
+							if(isWall(x+1,y)){
+								if(isWall(x-1,y-1)){
+									if(isWall(x,y-1)){
+										if(isWall(x+1,y-1)){
+											map2[x,y]=1;
+											return true;
+										}
+									}
+								}
 							}
 						}
-						if(map[tile.tileX,tile.tileY+1]==1){ //prabaixo é parede
-							if (map[tile.tileX,tile.tileY-1]==1){ //pracima é parede
-								map2[tile.tileX,tile.tileY]=6;
-								continue;
-							} else { //pracima não é parede
-								map2[tile.tileX,tile.tileY]=4;
-								continue;
-							}
-						} else { //prabaixo não é parede
-							if (map[tile.tileX,tile.tileY-1]==1){ //pracima é parede
-								map2[tile.tileX,tile.tileY]=9;
-								continue;
-							}
-						}
-					}
-				} else { //direita é parede
-					if(tile.tileY+1 == height){ //prabaixo é "parede"
-						if(map[tile.tileX,tile.tileY-1]==1){ //pracima é parede
-							map2[tile.tileX,tile.tileY]=5;
-							continue;
-						} else { //pracima não é parede
-							map2[tile.tileX,tile.tileY]=2;
-							continue;
-						}
-					}
-					if (map[tile.tileX,tile.tileY+1]==1){ //prabaixo é parede
-						if(map[tile.tileX,tile.tileY-1]==1){ //pracima é parede
-							map2[tile.tileX,tile.tileY]=5;
-							continue;
-						} else { //pracima não é parede
-							map2[tile.tileX,tile.tileY]=2;
-							continue;
-						}
-					} else { //prabaixo não é parede
-						map2[tile.tileX,tile.tileY]=7;
-						continue;
 					}
 				}
 			}
 		}
+		return false;
+	}
+
+	bool Rule2(int x, int y){
+		if(!isWall(x,y+1)){
+			if(!isWall(x-1,y)){
+				if(isWall(x,y)){
+					if(isWall(x+1,y)){
+						if(isWall(x,y-1)){
+							if(isWall(x+1,y-1)){
+								map2[x,y]=2;
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	bool Rule3(int x, int y){
+		if(!isWall(x,y+1)){
+			if(isWall(x-1,y)){
+				if(isWall(x,y)){
+					if(isWall(x+1,y)){
+						if(isWall(x,y-1)){
+							map2[x,y]=3;
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	bool Rule4(int x, int y){
+		if(!isWall(x,y+1)){
+			if(isWall(x-1,y)){
+				if(isWall(x,y)){
+					if(!isWall(x+1,y)){
+						if(isWall(x-1,y-1)){
+							if(isWall(x,y-1)){
+								map2[x,y]=4;
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	bool Rule5(int x, int y){
+		if(isWall(x,y+1)){
+			if(!isWall(x-1,y)){
+				if(isWall(x,y)){
+					if(isWall(x+1,y)){
+						if(isWall(x,y-1)){
+							map2[x,y]=5;
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	bool Rule6(int x, int y){
+		if(isWall(x,y+1)){
+			if(isWall(x-1,y)){
+				if(isWall(x,y)){
+					if(!isWall(x+1,y)){
+						if(isWall(x,y-1)){
+							map2[x,y]=6;
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	bool Rule7(int x, int y){
+		if(isWall(x,y+1)){
+			if(isWall(x+1,y+1)){
+				if(!isWall(x-1,y)){
+					if(isWall(x,y)){
+						if(isWall(x+1,y)){
+							if(!isWall(x,y-1)){
+								map2[x,y]=7;
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	bool Rule8(int x, int y){
+		if(isWall(x,y+1)){
+			if(isWall(x-1,y)){
+				if(isWall(x,y)){
+					if(isWall(x+1,y)){
+						if(!isWall(x,y-1)){
+							map2[x,y]=8;
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	bool Rule9(int x, int y){
+		if(isWall(x-1,y+1)){
+			if(isWall(x,y+1)){
+				if(isWall(x-1,y)){
+					if(isWall(x,y)){
+						if(!isWall(x+1,y)){
+							if(!isWall(x,y-1)){
+								map2[x,y]=9;
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	bool Rule10(int x, int y){
+		if(isWall(x,y)){
+			if(isWall(x+1,y)){
+				if(isWall(x,y-1)){
+					if(!isWall(x+1,y-1)){
+						map2[x,y]=10;
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	bool Rule11(int x, int y){
+		if(isWall(x-1,y)){
+			if(isWall(x,y)){
+				if(!isWall(x-1,y-1)){
+					if(isWall(x,y-1)){
+						map2[x,y]=11;
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	bool Rule12(int x, int y){
+		if(isWall(x,y+1)){
+			if(!isWall(x+1,y+1)){
+				if(isWall(x,y)){
+					if(isWall(x+1,y)){
+						map2[x,y]=12;
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	bool Rule13(int x, int y){
+		if(!isWall(x-1,y+1)){
+			if(isWall(x,y+1)){
+				if(isWall(x-1,y)){
+					if(isWall(x,y)){
+						map2[x,y]=13;
+						return true;
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	void SetStartingRoom(List<Room> roomList){
