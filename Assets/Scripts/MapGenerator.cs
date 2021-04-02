@@ -6,8 +6,8 @@ using System;
 
 public class MapGenerator : MonoBehaviour {
 	private int debugcounter=0;
-	private const int centerX = 27;
-	private const int centerY = 8;
+	private const int centerX = 0;
+	private const int centerY = 0;
 	private int areaCounter = 14;
 	public int width;
 	public int height;
@@ -107,20 +107,23 @@ public class MapGenerator : MonoBehaviour {
 		}
 	}
 	void DrawGround() {
-		for (int x = -25; x < 10; x ++) {
-			for (int y = -7; y < 23; y ++) {
+		for (int x = 0; x < width; x ++) {
+			for (int y = 0; y < height; y ++) {
 				tileMapGround.SetTile(new Vector3Int(x, y, 0), ground);
 			}
 		}
 	}
 	
 	Vector3Int MapToWorldCoord(int x, int y){
-		return new Vector3Int(x-25, y-7, 0);
+		return new Vector3Int(x, y, 0);
 	}
 
 	void GenerateMap() {
 		List<Room> roomList = new List<Room> ();
+		List<List<Room>> listOfRoomLists = new List<List<Room>>();
+
 		bool isPossible;
+		bool allConnected = false;
 		map = new int[width,height];
 		map2 = new int[width,height];
 		int count = 0;
@@ -143,7 +146,11 @@ public class MapGenerator : MonoBehaviour {
 			}
 		} while(!isPossible);
 
-		ConnectClosestRooms(roomList); // CONNECT EVERY ROOM
+		listOfRoomLists.Add(roomList); //first roomlist in the list is the one containing all rooms
+		while( allConnected == false){
+			ConnectClosestRooms(listOfRoomLists);
+			allConnected = CheckIfAllConnected();
+		}
 		ClearInconsistencies(roomList); // CLEAR THE INCONSISTENCIES
 		ClearInconsistencies(passageList); 
 		ClearRoomNumbers(roomList); // ERASE THE COLORS
@@ -478,8 +485,11 @@ public class MapGenerator : MonoBehaviour {
 		}
 	}
 
+	bool CheckIfAllConnected(){
+		return true;
+	}
 
-	void ConnectClosestRooms(List<Room> allRooms) {
+	void ConnectClosestRooms(List<List<Room>> listOfRoomLists) {
 
 		int bestDistance = 0;
 		Coord bestTileA = new Coord ();
@@ -487,39 +497,46 @@ public class MapGenerator : MonoBehaviour {
 		Room bestRoomA = new Room ();
 		Room bestRoomB = new Room ();
 		bool possibleConnectionFound = false;
+		for(int i=0; i<listOfRoomLists.Count; i=i+2) {
+			List<Room> roomListA = listOfRoomLists[i];
+			if(i==0){
+				List<Room> roomListB = roomListA;
+			}else{
+				List<Room> roomListB = listOfRoomLists[i+1];
+			}
+			foreach (Room roomA in roomListA) {
+				possibleConnectionFound = false;
 
-		foreach (Room roomA in allRooms) {
-			possibleConnectionFound = false;
+				foreach (Room roomB in listOfRoomLists[i]) {
+					if (roomA == roomB) {
+						continue;
+					}
+					if (roomA.IsConnected(roomB)) {
+						possibleConnectionFound = false;
+						break;
+					}
 
-			foreach (Room roomB in allRooms) {
-				if (roomA == roomB) {
-					continue;
-				}
-				if (roomA.IsConnected(roomB)) {
-					possibleConnectionFound = false;
-					break;
-				}
+					for (int tileIndexA = 0; tileIndexA < roomA.getEdgeTiles().Count; tileIndexA ++) {
+						for (int tileIndexB = 0; tileIndexB < roomB.getEdgeTiles().Count; tileIndexB ++) {
+							Coord tileA = roomA.getEdgeTiles()[tileIndexA];
+							Coord tileB = roomB.getEdgeTiles()[tileIndexB];
+							int distanceBetweenRooms = (int)(Mathf.Pow (tileA.tileX-tileB.tileX,2) + Mathf.Pow (tileA.tileY-tileB.tileY,2));
 
-				for (int tileIndexA = 0; tileIndexA < roomA.getEdgeTiles().Count; tileIndexA ++) {
-					for (int tileIndexB = 0; tileIndexB < roomB.getEdgeTiles().Count; tileIndexB ++) {
-						Coord tileA = roomA.getEdgeTiles()[tileIndexA];
-						Coord tileB = roomB.getEdgeTiles()[tileIndexB];
-						int distanceBetweenRooms = (int)(Mathf.Pow (tileA.tileX-tileB.tileX,2) + Mathf.Pow (tileA.tileY-tileB.tileY,2));
-
-						if (distanceBetweenRooms < bestDistance || !possibleConnectionFound) {
-							bestDistance = distanceBetweenRooms;
-							possibleConnectionFound = true;
-							bestTileA = tileA;
-							bestTileB = tileB;
-							bestRoomA = roomA;
-							bestRoomB = roomB;
+							if (distanceBetweenRooms < bestDistance || !possibleConnectionFound) {
+								bestDistance = distanceBetweenRooms;
+								possibleConnectionFound = true;
+								bestTileA = tileA;
+								bestTileB = tileB;
+								bestRoomA = roomA;
+								bestRoomB = roomB;
+							}
 						}
 					}
 				}
-			}
 
-			if (possibleConnectionFound) {
-				CreatePassage(bestRoomA, bestRoomB, bestTileA, bestTileB);
+				if (possibleConnectionFound) {
+					CreatePassage(bestRoomA, bestRoomB, bestTileA, bestTileB);
+				}
 			}
 		}
 	}
