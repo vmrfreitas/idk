@@ -9,6 +9,7 @@ public class MapGenerator : MonoBehaviour {
 	private const int centerX = 0;
 	private const int centerY = 0;
 	private int areaCounter = 14;
+	private int roomIndex;
 	public int width;
 	public int height;
 	private	int x=0, y=0, z=0;
@@ -147,9 +148,9 @@ public class MapGenerator : MonoBehaviour {
 		} while(!isPossible);
 
 		listOfRoomLists.Add(roomList); //first roomlist in the list is the one containing all rooms
-		while( allConnected == false){
+		while(allConnected == false){
 			ConnectClosestRooms(listOfRoomLists);
-			allConnected = CheckIfAllConnected();
+			allConnected = CheckIfAllConnected(listOfRoomLists);
 		}
 		ClearInconsistencies(roomList); // CLEAR THE INCONSISTENCIES
 		ClearInconsistencies(passageList); 
@@ -485,8 +486,43 @@ public class MapGenerator : MonoBehaviour {
 		}
 	}
 
-	bool CheckIfAllConnected(){
-		return true;
+	bool CheckIfAllConnected(List<List<Room>> listOfRoomLists){
+		roomIndex = -1;
+		foreach(Room room in listOfRoomLists[0]){
+			DeepSearch(room, -1);
+		}
+		for(int i=0;i<=roomIndex;i++){
+			List<Room> tempList = new List<Room>();
+			foreach(Room room in listOfRoomLists[0]){
+				if(room.getRoomIndex()==i){
+					tempList.Add(room);
+					room.setRoomIndex(-1);
+					room.setVisited(false);
+				}
+			}
+			if(tempList.Count>0){
+				listOfRoomLists.Add(tempList);
+			}
+		}
+		if(listOfRoomLists.Count == 1 || (listOfRoomLists[0].Count == listOfRoomLists[1].Count)){
+			return true;
+		}
+		return false;
+	}
+
+	void DeepSearch(Room room, int firstTime){
+		if (room.getVisited()==false){
+			if(firstTime == -1){
+				roomIndex++;
+				firstTime++;
+			}
+			room.setRoomIndex(roomIndex);
+			room.setVisited(true);
+			foreach(Room connectedRoom in room.getConnectedRooms()){
+				DeepSearch(connectedRoom, firstTime);
+			}
+		}
+		return;
 	}
 
 	void ConnectClosestRooms(List<List<Room>> listOfRoomLists) {
@@ -497,11 +533,12 @@ public class MapGenerator : MonoBehaviour {
 		Room bestRoomA = new Room ();
 		Room bestRoomB = new Room ();
 		bool possibleConnectionFound = false;
-		for(int i=0; i<listOfRoomLists.Count; i=i+2) {
+		for(int i=0; i<listOfRoomLists.Count-1; i++) {
 			List<Room> roomListA = listOfRoomLists[i];
 			if(i==0){
 				List<Room> roomListB = roomListA;
 			}else{
+				Debug.Log("HEHEHE");
 				List<Room> roomListB = listOfRoomLists[i+1];
 			}
 			foreach (Room roomA in roomListA) {
@@ -539,6 +576,8 @@ public class MapGenerator : MonoBehaviour {
 				}
 			}
 		}
+
+		listOfRoomLists.RemoveRange(1,listOfRoomLists.Count-1);
 	}
 
 	
@@ -725,16 +764,19 @@ public class MapGenerator : MonoBehaviour {
 		private List<Coord> cornerTiles;
 		private List<Room> connectedRooms;
 		private int roomSize;
+		private bool visited;
+		private int roomIndex;
 		private int roomNumber;
 		public Room() {
 		}
 
 		public Room(List<Coord> roomTiles, int[,] map, int roomNumber) {
 			this.roomNumber = roomNumber;
+			this.roomIndex = -1;
 			tiles = roomTiles;
 			roomSize = tiles.Count;
 			connectedRooms = new List<Room>();
-
+			this.visited = false;
 			edgeTiles = new List<Coord>();
 			cornerTiles = new List<Coord>();
 			foreach (Coord tile in tiles) {
@@ -778,6 +820,18 @@ public class MapGenerator : MonoBehaviour {
 
 		public int CompareTo(Room otherRoom) {
 			return otherRoom.roomSize.CompareTo (roomSize);
+		}
+		public void setVisited(bool visited){ 
+			this.visited = visited;
+		}
+		public bool getVisited(){ 
+			return visited;
+		}
+		public void setRoomIndex(int roomIndex){ 
+			this.roomIndex = roomIndex;
+		}
+		public int getRoomIndex(){ 
+			return roomIndex;
 		}
 		public List<Coord> getTiles(){ 
 			return tiles;
