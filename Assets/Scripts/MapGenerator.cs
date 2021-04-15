@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System;
 
 public class MapGenerator : MonoBehaviour {
-	private int debugcounter=0;
+	//private int debugcounter=0;
 	private const int centerX = 0;
 	private const int centerY = 0;
 	private int areaCounter = 14;
@@ -528,21 +528,21 @@ public class MapGenerator : MonoBehaviour {
 		return;
 	}
 
-	void isReachable(Room roomA, Room roomB) { 
-		if(roomA.getVisited() == false){
-			if(roomA == roomB){
-				Debug.Log("locurada");
+	void isReachable(Room roomB, Room roomA) { 
+		if(roomB.getVisited() == false){
+			if(roomB == roomA){
+				//Debug.Log("locurada");
 				reached = true;
 			}
-			roomA.setVisited(true);
-			foreach(Room connectedRoom in roomA.getConnectedRooms()){
-				isReachable(connectedRoom, roomB);
+			roomB.setVisited(true);
+			foreach(Room connectedRoom in roomB.getConnectedRooms()){
+				isReachable(connectedRoom, roomA);
 			}
 		}
 	}
 	void ConnectClosestRooms(List<List<Room>> listOfRoomLists, bool firstTime) {
 		
-				Debug.Log("tamo ae");
+				//Debug.Log("tamo ae");
 
 		int bestDistance = 0;
 		Coord bestTileA = new Coord ();
@@ -551,35 +551,36 @@ public class MapGenerator : MonoBehaviour {
 		Room bestRoomB = new Room ();
 		bool possibleConnectionFound = false;
 		int i = firstTime?0:1;
-		for(; i<listOfRoomLists.Count-1; i++) {
-			List<Room> roomListA = listOfRoomLists[i];
-			List<Room> roomListB = new List<Room>();
+		List<Room> roomListA = listOfRoomLists[0];
+		List<Room> roomListB = new List<Room>();
+		for(; i<listOfRoomLists.Count; i++) {
 			if(i==0){
 				roomListB = roomListA;
 			}else{
-				roomListB = listOfRoomLists[i+1];
+				roomListB = listOfRoomLists[i];
 			}
-			foreach (Room roomA in roomListA) {
-				possibleConnectionFound = false;
-
-				foreach (Room roomB in roomListB) {
-					if (roomA == roomB) {
+			possibleConnectionFound = false;
+			foreach (Room roomB in roomListB) {
+				foreach (Room roomA in roomListA) {
+					if (roomB == roomA) {
 						continue;
 					}
+
 					reached = false;
-					isReachable(roomA, roomB);
+					isReachable(roomB, roomA);
 					foreach(Room room in listOfRoomLists[0]){
 						room.setVisited(false);
 					}
 					if (reached) {
-						possibleConnectionFound = false;
-						break;
+						//possibleConnectionFound = false;
+						continue;
+						//break;
 					}
 
-					for (int tileIndexA = 0; tileIndexA < roomA.getEdgeTiles().Count; tileIndexA ++) {
-						for (int tileIndexB = 0; tileIndexB < roomB.getEdgeTiles().Count; tileIndexB ++) {
-							Coord tileA = roomA.getEdgeTiles()[tileIndexA];
-							Coord tileB = roomB.getEdgeTiles()[tileIndexB];
+					for (int tileIndexA = 0; tileIndexA < roomB.getEdgeTiles().Count; tileIndexA ++) {
+						for (int tileIndexB = 0; tileIndexB < roomA.getEdgeTiles().Count; tileIndexB ++) {
+							Coord tileA = roomB.getEdgeTiles()[tileIndexA];
+							Coord tileB = roomA.getEdgeTiles()[tileIndexB];
 							int distanceBetweenRooms = (int)(Mathf.Pow (tileA.tileX-tileB.tileX,2) + Mathf.Pow (tileA.tileY-tileB.tileY,2));
 
 							if (distanceBetweenRooms < bestDistance || !possibleConnectionFound) {
@@ -587,20 +588,23 @@ public class MapGenerator : MonoBehaviour {
 								possibleConnectionFound = true;
 								bestTileA = tileA;
 								bestTileB = tileB;
-								bestRoomA = roomA;
-								bestRoomB = roomB;
+								bestRoomA = roomB;
+								bestRoomB = roomA;
 							}
 						}
 					}
 				}
+			}
+			bestDistance = 0;
 
-				if (possibleConnectionFound) {
-					CreatePassage(bestRoomA, bestRoomB, bestTileA, bestTileB);
-				}
+			if (possibleConnectionFound) {
+				CreatePassage(bestRoomA, bestRoomB, bestTileA, bestTileB);
+				listOfRoomLists.RemoveRange(1,listOfRoomLists.Count-1);
+				return;
 			}
 		}
 
-		listOfRoomLists.RemoveRange(1,listOfRoomLists.Count-1);
+		//listOfRoomLists.RemoveRange(1,listOfRoomLists.Count-1);
 	}
 
 	
