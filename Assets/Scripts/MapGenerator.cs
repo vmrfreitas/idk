@@ -10,6 +10,7 @@ public class MapGenerator : MonoBehaviour {
 	private const int centerY = 0;
 	private int areaCounter = 14;
 	private int roomIndex;
+	private bool reached;
 	public int width;
 	public int height;
 	private	int x=0, y=0, z=0;
@@ -148,8 +149,10 @@ public class MapGenerator : MonoBehaviour {
 		} while(!isPossible);
 
 		listOfRoomLists.Add(roomList); //first roomlist in the list is the one containing all rooms
+		bool firstTime = true;
 		while(allConnected == false){
-			ConnectClosestRooms(listOfRoomLists);
+			ConnectClosestRooms(listOfRoomLists, firstTime);
+			firstTime = false;
 			allConnected = CheckIfAllConnected(listOfRoomLists);
 		}
 		ClearInconsistencies(roomList); // CLEAR THE INCONSISTENCIES
@@ -525,7 +528,21 @@ public class MapGenerator : MonoBehaviour {
 		return;
 	}
 
-	void ConnectClosestRooms(List<List<Room>> listOfRoomLists) {
+	void isReachable(Room roomA, Room roomB) { 
+		if(roomA.getVisited() == false){
+			if(roomA == roomB){
+				Debug.Log("locurada");
+				reached = true;
+			}
+			roomA.setVisited(true);
+			foreach(Room connectedRoom in roomA.getConnectedRooms()){
+				isReachable(connectedRoom, roomB);
+			}
+		}
+	}
+	void ConnectClosestRooms(List<List<Room>> listOfRoomLists, bool firstTime) {
+		
+				Debug.Log("tamo ae");
 
 		int bestDistance = 0;
 		Coord bestTileA = new Coord ();
@@ -533,22 +550,28 @@ public class MapGenerator : MonoBehaviour {
 		Room bestRoomA = new Room ();
 		Room bestRoomB = new Room ();
 		bool possibleConnectionFound = false;
-		for(int i=0; i<listOfRoomLists.Count-1; i++) {
+		int i = firstTime?0:1;
+		for(; i<listOfRoomLists.Count-1; i++) {
 			List<Room> roomListA = listOfRoomLists[i];
+			List<Room> roomListB = new List<Room>();
 			if(i==0){
-				List<Room> roomListB = roomListA;
+				roomListB = roomListA;
 			}else{
-				Debug.Log("HEHEHE");
-				List<Room> roomListB = listOfRoomLists[i+1];
+				roomListB = listOfRoomLists[i+1];
 			}
 			foreach (Room roomA in roomListA) {
 				possibleConnectionFound = false;
 
-				foreach (Room roomB in listOfRoomLists[i]) {
+				foreach (Room roomB in roomListB) {
 					if (roomA == roomB) {
 						continue;
 					}
-					if (roomA.IsConnected(roomB)) {
+					reached = false;
+					isReachable(roomA, roomB);
+					foreach(Room room in listOfRoomLists[0]){
+						room.setVisited(false);
+					}
+					if (reached) {
 						possibleConnectionFound = false;
 						break;
 					}
