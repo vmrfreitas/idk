@@ -14,10 +14,16 @@ public class MapGenerator : MonoBehaviour {
 	public int width;
 	public int height;
 	private	int x=0, y=0, z=0;
+	public bool createStartRoom;
 	public int startX1;
 	public int startY1;
 	public int startX2;
 	public int startY2;
+	public bool createEndRoom;
+	public int endX1;
+	public int endY1;
+	public int endX2;
+	public int endY2;
 	public int iteractions;
 	public float seed;
 	public bool useRandomSeed;
@@ -59,6 +65,7 @@ public class MapGenerator : MonoBehaviour {
 			GenerateMap();
 			tileMapWall.ClearAllTiles();
 			DrawWall();
+			
 		}
 	}
 	void DrawWall() {
@@ -121,14 +128,13 @@ public class MapGenerator : MonoBehaviour {
 	}
 
 	void GenerateMap() {
-		List<Room> roomList = new List<Room> ();
-		List<List<Room>> listOfRoomLists = new List<List<Room>>();
-
 		bool isPossible;
 		bool allConnected = false;
+		int count = 0;
+		List<Room> roomList = new List<Room> ();
+		List<List<Room>> listOfRoomLists = new List<List<Room>>();
 		map = new int[width,height];
 		map2 = new int[width,height];
-		int count = 0;
 		do {
 			roomList.Clear();
 			isPossible = true;
@@ -139,7 +145,7 @@ public class MapGenerator : MonoBehaviour {
 				map = (int[,])map2.Clone();
 			}
 			roomList = findWallsAndAreas(); // GET EVERY AREA
-			SetStartingRoom(roomList); // SET THE STARTING ROOM
+			SetStartingEndingRoom(roomList); // SET THE STARTING ROOM
 			foreach(Room room in roomList){ // CHECK IF THE MAP IS POSSIBLE
 				if(!room.isPossible(map, height, width)){
 					isPossible = false;
@@ -156,7 +162,7 @@ public class MapGenerator : MonoBehaviour {
 			allConnected = CheckIfAllConnected(listOfRoomLists);
 		}
 		ClearInconsistencies(roomList); // CLEAR THE INCONSISTENCIES
-		ClearInconsistencies(passageList); 
+		ClearInconsistencies(passageList);
 		ClearRoomNumbers(roomList); // ERASE THE COLORS
 		map2 = new int[width,height];
 		//map2 = (int[,])map.Clone();
@@ -452,13 +458,24 @@ public class MapGenerator : MonoBehaviour {
 		return false;
 	}
 
-	void SetStartingRoom(List<Room> roomList){
-		List<Coord> startRoomTiles = new List<Coord> ();
-		map[startX1,startY1] = 0;
-		map[startX2,startY2] = 0;
-		startRoomTiles.Add(new Coord(startX1, startY1));
-		startRoomTiles.Add(new Coord(startX2, startY2));
-		roomList.Add(new Room(startRoomTiles, map, 0));
+	void SetStartingEndingRoom(List<Room> roomList){
+		if(createStartRoom){
+			List<Coord> startRoomTiles = new List<Coord> ();
+			map[startX1,startY1] = 0;
+			map[startX2,startY2] = 0;
+			startRoomTiles.Add(new Coord(startX1, startY1));
+			startRoomTiles.Add(new Coord(startX2, startY2));
+			roomList.Add(new Room(startRoomTiles, map, 0, width, height));
+		}
+
+		if(createEndRoom){
+			List<Coord> endRoomTiles = new List<Coord> ();
+			map[endX1,endY1] = 0;
+			map[endX2,endY2] = 0;
+			endRoomTiles.Add(new Coord(endX1, endY1));
+			endRoomTiles.Add(new Coord(endX2, endY2));
+			roomList.Add(new Room(endRoomTiles, map, 0, width, height));
+		}
 	}
 	void ClearRoomNumbers(List<Room> roomList){
 		foreach(Room room in roomList){
@@ -611,7 +628,7 @@ public class MapGenerator : MonoBehaviour {
 	void CreatePassage(Room roomA, Room roomB, Coord tileA, Coord tileB) {
 		Room.ConnectRooms (roomA, roomB);
 		List<Coord> passageCoords = DrawLine(tileA.tileX, tileA.tileY, tileB.tileX, tileB.tileY);
-		passageList.Add(new Room(passageCoords, map, 0));
+		passageList.Add(new Room(passageCoords, map, 0, width, height));
 		worldCoordTileA.Add(CoordToWorldPoint (tileA));
 		worldCoordTileB.Add(CoordToWorldPoint (tileB));
 	}
@@ -649,7 +666,7 @@ public class MapGenerator : MonoBehaviour {
 					//debugcounter++;
 					List<Coord> coordList = new List<Coord> ();
 					paintBucket(x,y, coordList);
-					roomList.Add(new  Room(coordList, map, areaCounter));
+					roomList.Add(new  Room(coordList, map, areaCounter, width, height));
 					areaCounter++;
 				}
 			}
@@ -797,7 +814,7 @@ public class MapGenerator : MonoBehaviour {
 		public Room() {
 		}
 
-		public Room(List<Coord> roomTiles, int[,] map, int roomNumber) {
+		public Room(List<Coord> roomTiles, int[,] map, int roomNumber, int width, int height) {
 			this.roomNumber = roomNumber;
 			this.roomIndex = -1;
 			tiles = roomTiles;
@@ -809,7 +826,7 @@ public class MapGenerator : MonoBehaviour {
 			foreach (Coord tile in tiles) {
 				for (int x = tile.tileX-1; x <= tile.tileX+1; x++) {
 					for (int y = tile.tileY-1; y <= tile.tileY+1; y++) {
-						if (x>-1 && y>-1){
+						if (x>-1 && y>-1 && x<width && y<height){
 							if ((x == tile.tileX || y == tile.tileY) && map[x,y] == 1) {
 								edgeTiles.Add(new Coord (x, y));
 							}else if(map[x,y] == 1){

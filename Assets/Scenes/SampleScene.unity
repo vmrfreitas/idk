@@ -569,12 +569,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3647901e8728a574980cc433787f9dde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 50
-  height: 50
+  width: 75
+  height: 75
+  createStartRoom: 1
   startX1: 0
   startY1: 13
   startX2: 0
   startY2: 14
+  createEndRoom: 1
+  endX1: 74
+  endY1: 50
+  endX2: 74
+  endY2: 51
   iteractions: 20
   seed: 0
   useRandomSeed: 1
