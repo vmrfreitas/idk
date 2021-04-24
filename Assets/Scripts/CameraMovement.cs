@@ -8,7 +8,7 @@ public class CameraMovement : MonoBehaviour
     public float smoothing;
     public Vector2 maxPosition;
     public Vector2 minPosition;
-
+    public MapGenerator mapGen;
 
     // Start is called before the first frame update
     void Start()
@@ -19,6 +19,10 @@ public class CameraMovement : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
+        minPosition = new Vector2(9,5); 
+
+        maxPosition.y = mapGen.height-5;
+        maxPosition.x = mapGen.width-9;
         if (transform.position != target.position) {
             Vector3 targetPosition = new Vector3(target.position.x,
                                         target.position.y,
