@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System;
 
 public class MapGenerator : MonoBehaviour {
-	//private int debugcounter=0;
 	private const int centerX = 0;
 	private const int centerY = 0;
 	private int areaCounter = 14;
